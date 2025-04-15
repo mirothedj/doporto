@@ -1,7 +1,7 @@
 "use client"
 
 import { useState } from "react"
-import { motion } from "framer-motion"
+import { motion, AnimatePresence } from "framer-motion"
 import {
   Inbox,
   Send,
@@ -16,6 +16,7 @@ import {
   Bell,
   Menu,
   X,
+  CalendarIcon,
 } from "lucide-react"
 
 // Mock email data
@@ -70,6 +71,8 @@ const mockEmails = [
 export default function EmailDashboard() {
   const [selectedEmail, setSelectedEmail] = useState<number | null>(null)
   const [sidebarOpen, setSidebarOpen] = useState(true)
+  const [showCalendar, setShowCalendar] = useState(false)
+  const [selectedDate, setSelectedDate] = useState(new Date())
 
   return (
     <motion.div
@@ -131,6 +134,27 @@ export default function EmailDashboard() {
 
           {/* Navigation */}
           <nav className="flex-1 space-y-1 px-2">
+            {/* Calendar Widget */}
+            <div className="mb-3">
+              <button
+                onClick={() => setShowCalendar(!showCalendar)}
+                className="flex w-full items-center justify-between rounded-lg px-3 py-2 text-sm text-cyan-300 hover:bg-cyan-900/10"
+              >
+                <div className="flex items-center">
+                  <CalendarIcon size={16} className="mr-3 text-cyan-400" />
+                  Calendar
+                </div>
+                <div className="flex h-14 w-14 flex-col items-center justify-center rounded-md bg-[#080818] text-cyan-400 shadow-inner shadow-cyan-900/30">
+                  <span className="text-xs font-medium">
+                    {selectedDate.toLocaleString("default", { month: "short" })}
+                  </span>
+                  <span className="text-lg font-bold">{selectedDate.getDate()}</span>
+                  <span className="text-xs opacity-70">{selectedDate.getFullYear()}</span>
+                </div>
+              </button>
+            </div>
+
+            {/* Original navigation items */}
             {[
               { icon: Inbox, label: "Inbox", count: 3 },
               { icon: Star, label: "Starred", count: 2 },
@@ -141,7 +165,7 @@ export default function EmailDashboard() {
               <button
                 key={index}
                 className={`flex w-full items-center justify-between rounded-lg px-3 py-2 text-sm ${
-                  index === 0 ? "bg-cyan-900/20 text-cyan-400" : "text-cyan-300 hover:bg-cyan-900/10"
+                  index === 0 && !showCalendar ? "bg-cyan-900/20 text-cyan-400" : "text-cyan-300 hover:bg-cyan-900/10"
                 }`}
               >
                 <div className="flex items-center">
@@ -218,6 +242,76 @@ export default function EmailDashboard() {
             ))}
           </div>
         </motion.div>
+        {/* Calendar View */}
+        <AnimatePresence>
+          {showCalendar && (
+            <motion.div
+              className="absolute inset-0 z-10 bg-[#080818] p-4"
+              initial={{ opacity: 0, scale: 0.9 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.9 }}
+              transition={{ duration: 0.3 }}
+            >
+              <div className="flex items-center justify-between mb-4">
+                <h2 className="text-xl font-bold text-cyan-400">Calendar</h2>
+                <button
+                  onClick={() => setShowCalendar(false)}
+                  className="rounded-full p-2 text-cyan-400 hover:bg-cyan-900/20"
+                >
+                  <X size={18} />
+                </button>
+              </div>
+
+              <div className="grid grid-cols-7 gap-1 mb-2">
+                {["S", "M", "T", "W", "T", "F", "S"].map((day, i) => (
+                  <div key={i} className="text-center text-xs text-cyan-500 font-medium py-1">
+                    {day}
+                  </div>
+                ))}
+              </div>
+
+              <div className="grid grid-cols-7 gap-1">
+                {Array.from({ length: 31 }, (_, i) => {
+                  const date = new Date()
+                  date.setDate(i + 1)
+                  const isToday = i + 1 === new Date().getDate()
+
+                  return (
+                    <button
+                      key={i}
+                      onClick={() => {
+                        setSelectedDate(date)
+                        setShowCalendar(false)
+                      }}
+                      className={`
+                          aspect-square rounded flex items-center justify-center text-sm
+                          ${isToday ? "bg-cyan-700 text-white" : "hover:bg-cyan-900/20 text-cyan-300"}
+                        `}
+                    >
+                      {i + 1}
+                    </button>
+                  )
+                })}
+              </div>
+
+              <div className="mt-4 border-t border-cyan-900/30 pt-4">
+                <h3 className="text-sm font-medium text-cyan-400 mb-2">
+                  Events for {selectedDate.toLocaleDateString()}
+                </h3>
+                <div className="space-y-2">
+                  <div className="rounded bg-cyan-900/10 p-2 text-sm text-cyan-300">
+                    <div className="font-medium">Team Meeting</div>
+                    <div className="text-xs text-cyan-500">10:00 AM - 11:00 AM</div>
+                  </div>
+                  <div className="rounded bg-cyan-900/10 p-2 text-sm text-cyan-300">
+                    <div className="font-medium">Project Deadline</div>
+                    <div className="text-xs text-cyan-500">5:00 PM</div>
+                  </div>
+                </div>
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
       </div>
 
       {/* Neon edge lighting effect */}

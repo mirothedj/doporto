@@ -33,9 +33,9 @@ export default function AuthForm({ onAuthenticate, username, isAuthenticated }: 
       animate={{ opacity: 1 }}
       transition={{ duration: 0.5 }}
     >
-      {/* Turquoise neon padlock icon */}
+      {/* Turquoise neon padlock icon - Could be replaced with Clerk authentication */}
       <motion.div
-        className="mb-4 flex justify-center"
+        className="mb-4 flex justify-center flex-col items-center"
         initial={{ scale: 0.8 }}
         animate={{
           scale: [0.8, 1.1, 1],
@@ -48,6 +48,8 @@ export default function AuthForm({ onAuthenticate, username, isAuthenticated }: 
         }}
       >
         <Lock size={64} className="text-[#00e5ff]" strokeWidth={1.5} />
+        {/* Clerk authentication indicator */}
+        <div className="text-xs text-cyan-400 mt-2 opacity-70">Secure Authentication</div>
       </motion.div>
 
       <div className="mb-6 text-center">
@@ -117,7 +119,7 @@ export default function AuthForm({ onAuthenticate, username, isAuthenticated }: 
               Authenticated
             </span>
           ) : (
-            "Unlock Access"
+            "Gdh"
           )}
         </button>
       </form>
